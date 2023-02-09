@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>{% block title %}Welcome!{% endblock %}</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Montserrat&family=Roboto" rel="stylesheet">
+        <link rel="stylesheet" href="{{ asset('assets/css/bootstrap.min.css') }}">
+        <link rel="stylesheet" href="{{ asset('assets/css/app.css') }}">
+        <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+    </head>
+    <body>
+
+    <style>
+        html,body{
+            font-family: 'Montserrat', sans-serif;
+        }
+    </style>
+    {% block header %}
+        {{ include('partials/_header.html.twig') }}
+    {% endblock %}
+
+        <main class="container marketing">
+
+            {% block content %}
+
+            {% endblock %}
+
+        </main>
+
+    {% block footer %}
+        {{ include('partials/_footer.html.twig') }}
+    {% endblock %}
+
+
+
+    </body>
+</html>

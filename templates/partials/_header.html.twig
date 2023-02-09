@@ -1,0 +1,77 @@
+<!--Entete du site-->
+<header class="mb-5 ">
+    <nav class="navbar  navbar-expand-lg navbar-dark bg-success " style="background: #FF5252;">
+        <div class="container">
+            <a class="navbar-brand" href="{{ path("app_home") }}">Malewapp</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ path('app_contact') }}">Contact</a>
+                    </li>
+                    {% if app.user %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ path('app_mes_recettes') }}">tokoss</a>
+                        </li>
+
+                    {% endif %}
+                    <li class="nav-item">
+                        <div class="dropdown">
+                            <a class=" nav-link dropdown-toggle" type="" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+                                Les recettes
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ path('app_recette') }}">Nos recette</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="#">Provinces</a>
+                                </li>
+
+                            </ul>
+                        </div>
+                    </li>
+
+                </ul>
+                <ul class="navbar-nav ms-auto mb-2">
+                    {% if app.user %}
+                        <div class="dropdown">
+                            <a class=" nav-link dropdown-toggle" type="" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+                                {{ app.user.firstname }}
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ path('app_mes_recettes') }}">Mes recettes</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ path('app_profile_modifier',{id : app.user.id}) }}">Modifier mes informations</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ path('app_profile_password') }}">Changer mot de passe</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ path('app_profile') }}">Mon compte</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ path('app_logout') }}">Me déconnecter</a>
+                                </li>
+                            </ul>
+                        </div>
+
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ path('app_register') }}">M'inscrire</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ path('app_login') }}">Me connecter</a>
+                        </li>
+                    {% endif %}
+
+
+                </ul>
+            </div>
+        </div>
+    </nav>
+</header>

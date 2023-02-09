@@ -1,0 +1,16 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mon compte _ Malewapp{% endblock %}
+
+{% block content %}
+    <h1>Mon compte</h1>
+    <p>Bienvenue {{ app.user.firstname }} dans votre espace </p>
+    <hr>
+
+    {% for message in app.flashes('success') %}
+        <div class="alert alert-success mt-4">{{ message }}</div>
+    {% endfor %}
+
+    - <a href="{{ path('app_mes_recettes') }}">Mes recettes</a>
+
+{% endblock %}

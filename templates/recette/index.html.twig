@@ -1,0 +1,33 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Les recettes - Malewapp{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-3">
+            <p>Filtrer</p>
+
+            {{ form(form) }}
+            <hr>
+
+        </div>
+        <div class="col-md-9">
+
+            <h3>Nos Recettes</h3>
+            <div class="row">
+                <!-- On affiche que les recette publique -->
+                {% for recette in recettes %}
+                    {% if recette.isPublic %}
+                        <div class="col-md-4 ">
+                            {% include 'recette/single.html.twig' %}
+                        </div>
+                    {% endif %}
+                {% endfor %}
+
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+

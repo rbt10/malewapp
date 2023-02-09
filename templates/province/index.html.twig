@@ -1,0 +1,35 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}SpecialiteProvince index{% endblock %}
+
+{% block body %}
+    <h1>SpecialiteProvince index</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Libelle</th>
+                <th>actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for specialite_province in specialite_provinces %}
+            <tr>
+                <td>{{ specialite_province.id }}</td>
+                <td>{{ specialite_province.libelle }}</td>
+                <td>
+                    <a href="{{ path('app_province_show', {'id': specialite_province.id}) }}">show</a>
+                    <a href="{{ path('app_province_edit', {'id': specialite_province.id}) }}">edit</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="3">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_province_new') }}">Create new</a>
+{% endblock %}

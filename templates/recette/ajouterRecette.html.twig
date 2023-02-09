@@ -1,0 +1,27 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Ajouter Recette - Malewapp{% endblock %}
+
+{% block content %}
+
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+   <h1>Ajouter une recette</h1>
+   <hr>
+
+   <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aspernatur aut blanditiis culpa distinctio
+      earum eius ipsam neque provident quam soluta? Adipisci dolores excepturi, impedit repellendus tenetur velit.
+      Ab, ad, quae!</p>
+
+        {{ form(form) }}
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('.js-example-basic-single').select2();
+        });
+    </script>
+
+{% endblock %}
+

@@ -1,0 +1,34 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ recette.name }}{% endblock %}
+
+{% block content %}
+    <h1>{{ recette.name }}</h1>
+    <div class="row mb-5">
+        <div class="col-md-5">
+            <img src="/uploads/{{ recette.image }}" alt="{{recette.name }}" class="img-fluid recette-image">
+        </div>
+        <div class="col-md-7 my-auto ">
+            <h3>{{ recette.name }}</h3>
+            <hr>
+            <p>{{ recette.description }}</p>
+            <hr>
+        </div>
+    </div>
+    <hr>
+    <div class="row">
+        <div class="col-md-12">
+            <h3>Nos Recettes</h3>
+            <div class="row recette-container">
+                {% for recette in recettes %}
+                    <div class="col-md-3 ">
+                        {% include 'recette/single.html.twig' %}
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+
