@@ -19,19 +19,18 @@ class CommentaireType extends AbstractType
     {
         $builder
 
-            ->add('email', EmailType::class,[
-                'label'=>'Mon adresse email'
+
+            ->add('contenu',TextareaType::class,[
+                'attr'=> [
+                    'class'=> "form-control"
+                ]
             ])
-            ->add('pseudo',TextType::class,[
-                'label'=>'Mon pseudo'
-            ])
-            ->add('contenu',TextareaType::class)
             ->add('rgpd', CheckboxType::class)
             ->add('response', HiddenType::class,[
                 'mapped' => false
             ])
             ->add('submit', SubmitType::class,[
-                'label'=>"Envoyer",
+                'label'=>"Poster un commentaire",
                 'attr'=>[
                     'class'=>'btn-block btn-outline-success my-3'
                 ]

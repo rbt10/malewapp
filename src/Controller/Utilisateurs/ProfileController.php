@@ -4,6 +4,7 @@ namespace App\Controller\Utilisateurs;
 
 use App\Entity\User;
 use App\Form\UpdateProfileType;
+use App\Services\NavProvinces;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -12,10 +13,20 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class ProfileController extends AbstractController
 {
+    private NavProvinces $navProvinces;
+
+
+    public function __construct( NavProvinces $navProvinces)
+    {
+
+        $this->navProvinces = $navProvinces;
+    }
     #[Route('/profile', name: 'app_profile')]
     public function index(): Response
     {
-        return $this->render('profile/index.html.twig');
+        return $this->render('profile/index.html.twig',[
+            'provinces' => $this->navProvinces->provinces()
+        ]);
     }
 
 
@@ -51,6 +62,7 @@ class ProfileController extends AbstractController
 
         return $this->render('profile/update_profile.html.twig',[
             'form'=>$form->createView(),
+            'provinces' => $this->navProvinces->provinces()
 
         ]);
     }

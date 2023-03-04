@@ -2,6 +2,7 @@
 
 namespace App\Controller\Utilisateurs;
 
+use App\Services\NavProvinces;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -9,6 +10,13 @@ use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
 class SecurityController extends AbstractController
 {
+    private NavProvinces $navProvinces;
+
+
+    public function __construct( NavProvinces $navProvinces)
+    {
+        $this->navProvinces = $navProvinces;
+    }
     #[Route(path: '/connexion', name: 'app_login')]
     public function login(AuthenticationUtils $authenticationUtils): Response
     {
@@ -23,7 +31,8 @@ class SecurityController extends AbstractController
 
         return $this->render('security/login.html.twig', [
             'last_username' => $lastUsername,
-            'error' => $error]);
+            'error' => $error,
+            'provinces' => $this->navProvinces->provinces()]);
     }
 
     #[Route(path: '/deconnexion', name: 'app_logout')]

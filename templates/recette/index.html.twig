@@ -17,15 +17,17 @@
             <div class="row">
                 <!-- On affiche que les recette publique -->
                 {% for recette in recettes %}
-                    {% if recette.isPublic %}
-                        <div class="col-md-4 ">
-                            {% include 'recette/single.html.twig' %}
-                        </div>
-                    {% endif %}
+                    <div class="col-md-4 ">
+                        {% include 'recette/single.html.twig' %}
+                    </div>
                 {% endfor %}
 
             </div>
+            <div class="d-flex justify-content-center pagination mt-5">
+                {{ knp_pagination_render(recettes)}}
+            </div>
         </div>
+
     </div>
 
 {% endblock %}

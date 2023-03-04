@@ -14,7 +14,9 @@ use App\Repository\CategorieRecetteRepository;
 use App\Repository\FavorisRepository;
 use App\Repository\RecetteRepository;
 use App\Repository\SpecialiteProvinceRepository;
+use App\Services\NavProvinces;
 use Doctrine\ORM\EntityManagerInterface;
+use Knp\Component\Pager\PaginatorInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -30,14 +32,17 @@ class RecetteController extends AbstractController
 {
     private EntityManagerInterface $entityManager;
 
+    private $navProvinces;
+
     /**
-     * ProductController constructor.
-     * @param EntityManagerInterface $entityManager
+     * @param $entityManager
      */
-    public function __construct(EntityManagerInterface $entityManager)
+    public function __construct(EntityManagerInterface $entityManager, NavProvinces $navProvinces)
     {
         $this->entityManager = $entityManager;
+        $this->navProvinces = $navProvinces;
     }
+
 
 
     /**
@@ -47,12 +52,13 @@ class RecetteController extends AbstractController
      */
 
     #[Route('/recette', name: 'app_recette')]
-    public function index(CategorieRecetteRepository $categories, SpecialiteProvinceRepository $prov, Request $request): Response
+    public function index(CategorieRecetteRepository $categorie,PaginatorInterface $paginator, Request $request): Response
     {
         $search = new Search();
         $form = $this->createForm(SearchType::class, $search);
 
-        $recettes = $this->entityManager->getRepository(Recette::class)->findAll();
+        $recettes = $this->entityManager->getRepository(Recette::class)->findPublished( $request->query->getInt('page',1));;
+
 
         $form->handleRequest($request);
 
@@ -62,7 +68,8 @@ class RecetteController extends AbstractController
 
         return $this->render('recette/index.html.twig',[
             'recettes'=>$recettes,
-            'form'=>$form->createView()
+            'form'=>$form->createView(),
+            'provinces' => $this->navProvinces->provinces()
         ]);
     }
 
@@ -71,7 +78,7 @@ class RecetteController extends AbstractController
      * @param Request $request
      * @return Response
      */
-    #[Route('recette/Ajouter-recette', name: 'app_Ajouter_recette', methods: ['GET', 'POST'])]
+    #[Route('recette/Ajouter-recette', name: 'app_Ajouter_recette', methods: ['GET', 'recette'])]
     #[IsGranted('ROLE_USER')]
     public function ajouter(Request $request, SluggerInterface $slugger): Response
     {
@@ -111,13 +118,14 @@ class RecetteController extends AbstractController
 
             return $this->render('recette/ajouterRecette.html.twig',[
                 'form'=>$form->createView(),
-                'videoForm'=>$videoForm->createView()
+                'videoForm'=>$videoForm->createView(),
+                'provinces' => $this->navProvinces->provinces()
             ]);
         }
 
     }
 
-    #[Route('recette/Ajouter-Video', name: 'app_Ajouter_video', methods: ['GET', 'POST'])]
+    #[Route('recette/Ajouter-Video', name: 'app_Ajouter_video', methods: ['GET', 'recette'])]
     #[IsGranted('ROLE_ADMIN')]
     public function ajouterVideo(Request $request, SluggerInterface $slugger): Response
     {
@@ -154,14 +162,15 @@ class RecetteController extends AbstractController
             // on affiche notre formulaire
 
             return $this->render('recette/videoRecette.html.twig',[
-                'videoForm'=>$videoForm->createView()
+                'videoForm'=>$videoForm->createView(),
+                'provinces' => $this->navProvinces->provinces()
             ]);
         }
 
     }
 
     #[Security("is_granted('ROLE_USER') and user === recette.getUser()")]
-    #[Route('recette/Modifier-recette/{id}', name: 'app_modifier', methods: ['GET', 'POST'])]
+    #[Route('recette/Modifier-recette/{id}', name: 'app_modifier', methods: ['GET', 'recette'])]
 
     public function modifier(Request $request,SluggerInterface $slugger, RecetteRepository $repository, Recette $recette): Response{
 
@@ -197,7 +206,8 @@ class RecetteController extends AbstractController
             // on affiche notre formulaire
 
             return $this->render('recette/modifierRecette.html.twig',[
-                'form'=>$form->createView()
+                'form'=>$form->createView(),
+                'provinces' => $this->navProvinces->provinces()
             ]);
         }
 
@@ -233,6 +243,7 @@ class RecetteController extends AbstractController
 
         return $this->render('recette/mesRecettes.html.twig', [
             'recettes' => $recettes,
+            'provinces' => $this->navProvinces->provinces()
         ]);
     }
 
@@ -253,6 +264,7 @@ class RecetteController extends AbstractController
         //on crée le commentaire
 
         $commentaire = new Commentaire();
+        $commentaire->setAuteur($this->getUser());
 
         // on génère le formulaire
 
@@ -276,7 +288,8 @@ class RecetteController extends AbstractController
         return $this->render('recette/show.html.twig',[
             'recette'=>$recette,
             'recettes' => $recettes,
-            'commentForm' => $commentForm->createView()
+            'commentForm' => $commentForm->createView(),
+            'provinces' => $this->navProvinces->provinces()
         ]);
     }
 
@@ -286,30 +299,27 @@ class RecetteController extends AbstractController
      * @param FavorisRepository $favorisRepository
      * @return Response
      */
-    #[Route('/Recette/{id}/like', name: 'app_tokoss')]
-    public function like(Recette $recette, FavorisRepository $favorisRepository): Response
+    #[Route('/recette/{id}/like', name: 'app_like')]
+    #[IsGranted('ROLE_USER')]
+    public function like(Recette $recette): Response
     {
         $user = $this->getUser();
-        if(!$user){
-            return $this->json(['code'=> 403, 'message'=> 'ça marche'], 403);
-        }
 
-
-        if($recette->islikedByUser($user)){
-            $like = $favorisRepository->findOneBy([
-                "recette" => $recette,
-                "user" => $user
-            ]);
-            $this->entityManager->remove($like);
+        if($recette->isLikedByUser($user)){
+            $recette->removeFavorite($user);
             $this->entityManager->flush();
 
+            return $this->json([
+                'message'=>'like supprimé',
+                'likes' => $recette->howManyLikes()
+            ]);
+
         }
 
-        $like = new Favoris();
-        $like->setRecette($recette)->setUser($user);
-        $this->entityManager->persist($like);
+        $recette->addFavorite($user);
         $this->entityManager->flush();
+        return $this->json([ 'message'=>'like ajouté' ,'likes' => $recette->howManyLikes()]);
 
-        return  $this->json(['code'=> 200, 'message'=> 'ça marche'], 200);
+    
     }
 }

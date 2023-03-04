@@ -4,94 +4,65 @@
 
 {% block content %}
 
-    <h1>{{ recette.name }}</h1>
-    <section class="row mb-5">
-        <div class="col-md-5">
+    <h1 class="display-6 text-center">{{ recette.name }}</h1>
+    <div class="row mb-5">
+        <div class="col">
+            {% include "component/_share.html.twig" %}
             <img src="/uploads/{{ recette.image }}" alt="{{recette.name }}" class="img-fluid rounded-2">
             <div class=" text-center">
-                <a href="{{ path('app_tokoss' , {'id' : recette.id}) }}" class="js-like text-danger nav-link">
+                <a href="{{ path('app_like' , {'id' : recette.id}) }}"  class="js-like text-danger nav-link">
                     {% if(app.user and recette.islikedByUser(app.user))   %}
                         <i class="fas fa-heart"></i>
-                        <span>J'aime</span>
+                        <span>  {{ recette.favorite |length }} J'aime</span>
                     {% else %}
                         <i class="far fa-heart"></i>
-                        <span>J'aime</span>
-                    {% endif %}
-                </a>
+                        <span> {{ recette.favorite |length }} J'aime</span>
+                    {% endif %}</a>
 
             </div>
         </div>
-        <div class="col-md-7 my-auto ">
-            <h3>{{ recette.name }}</h3>
-            <hr>
-            <h3>Ingredients</h3>
-            {% for ingredient in recette.ingredients %}
-                {{ ingredient.ingredienNom }}
-            {% endfor %}
-            <p>{{ recette.category }}</p>
-            <h3>Préparation</h3>
+    </div>
+    <div class="row">
+        <div class="col my-auto ">
+            <h3 class="display-6">Préparation</h3>
+            <p>Les ingrédients :
+                {% for ingredient in recette.ingredients %}
+                    {{ ingredient.ingredienNom }}
+                {% endfor %}
+            </p>
+            <p>type de plat : {{ recette.province }}</p>
             <p>Temps de préparation : {{ recette.duree.format('H:i:s')}}</p>
-            <p>{{ recette.description }}</p>
+            <p> Comment faire :{{ recette.description | raw }}</p>
             <hr>
         </div>
-    </section>
-    <hr>
+    </div>
     <!-------------------------- Les commentaires  ----------------------------->
-    <section class="row col-lg-12 col-md-6">
-        <div class="row">
-            <h2>Liste des commentaires</h2>
+    <section class="row">
+        <div class="col-md-12">
+            <h3 class="display-6">Commentaire</h3>
+            <div class="">
+                {% if app.user %}
+                    {{ form(commentForm) }}
+                {% endif %}
+
+            </div>
             {% for commentaire in recette.commentaires %}
-                <p>Publié par {{ commentaire.pseudo }} le {{ commentaire.createdAt| date("d/m/Y H:i") }}</p>
+                <p>Publié par {{ commentaire.auteur }} le {{ commentaire.createdAt| date("d/m/Y H:i") }}</p>
                 <div>{{ commentaire.contenu }}</div>
                 <p><a href="" data-reply data-id="{{ commentaire.id}} "></a></p>
             {% endfor %}
 
-            <a href="#" type="button" class="" data-bs-toggle="modal" data-bs-target="#exampleModal">
+            <a href="{{ path("app_login") }}" class="nav-link text-primary" >
                 Ajouter un commentaire
             </a>
         </div>
-
-        <!--Modal-->
-
-        <div class="modal" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Ajouter un commentaire</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body" id="ajout-commentaire">
-                        {% for message in app.flashes('success') %}
-                            <div class="alert alert-success mt-4">{{ message }}</div>
-                        {% endfor %}
-                        <h2>Ajouter un commentaire</h2>
-                        {{ form(commentForm) }}
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!--Modal-->
-
     </section>
-    <br>
-    <hr>
-    <!--<section class="row">
-        <div class="col-md-12">
-            <h3>Nos meilleurs recettes </h3>
-            <div class="row recette-container">
-                {% for recette in recettes %}
-                    <div class="col-md-3 ">
-                        {% include 'recette/single.html.twig' %}
-                    </div>
-                {% endfor %}
-            </div>
-        </div>
-    </section>-->
 
 
     <!-------------------------------------- fonction Js pour les likes    ----------------------------------------->
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script>
+        /*
         function onClickBtnLike(event) {
             event.preventDefault()
 
@@ -110,7 +81,7 @@
 
         document.querySelectorAll('a.js-like').forEach(function (link){
             link.addEventListener('click',onClickBtnLike)
-        })
+        })*/
     </script>
 
 {% endblock %}

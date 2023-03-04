@@ -70,7 +70,7 @@ class AppFixtures extends Fixture implements DependentFixtureInterface
                 ->setPrice(3)
                 ->setImage($faker->name)
                 ->setIsBest(mt_rand(0,1)==1)
-                ->setIsPublic(mt_rand(0,1)==1)
+                ->setIsPublic(mt_rand(0,2)=== 1 ? Recette::STATE[0] : Recette::STATE[1])
                 ->setSlug($this->slugger->slug($recette->getName()))
                 ->setProvince($province)
                 ->setDuree(new \DateTime('@'.strtotime('now')))

@@ -2,34 +2,20 @@
 
 {% block title %}SpecialiteProvince index{% endblock %}
 
-{% block body %}
-    <h1>SpecialiteProvince index</h1>
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <h1 class="display-6">Recette de la province{{ province.libelle }}</h1>
+            <!-- On affiche que les recette publique -->
+            {% for recette in recettes %}
+                <div class="col-md-4 col-lg-6 ">
+                    {% include 'recette/single.html.twig' %}
+                </div>
+            {% endfor %}
 
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Id</th>
-                <th>Libelle</th>
-                <th>actions</th>
-            </tr>
-        </thead>
-        <tbody>
-        {% for specialite_province in specialite_provinces %}
-            <tr>
-                <td>{{ specialite_province.id }}</td>
-                <td>{{ specialite_province.libelle }}</td>
-                <td>
-                    <a href="{{ path('app_province_show', {'id': specialite_province.id}) }}">show</a>
-                    <a href="{{ path('app_province_edit', {'id': specialite_province.id}) }}">edit</a>
-                </td>
-            </tr>
-        {% else %}
-            <tr>
-                <td colspan="3">no records found</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+        </div>
+    </div>
 
-    <a href="{{ path('app_province_new') }}">Create new</a>
+
+
 {% endblock %}

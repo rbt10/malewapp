@@ -18,6 +18,7 @@ use Vich\UploaderBundle\Mapping\Annotation as Vich;
 #[ORM\Entity(repositoryClass: RecetteRepository::class)]
 class Recette
 {
+    const STATE = ['STATE_DRAFT','STATE_PUBLISH'];
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
@@ -66,8 +67,8 @@ class Recette
     #[ORM\Column(type: 'string', length: 255)]
     private ?string $slug;
 
-    #[ORM\Column(type: 'boolean')]
-    private ?bool $isPublic;
+    #[ORM\Column(type: 'string')]
+    private ?string $isPublic = Recette::STATE[0];
 
     #[ORM\Column(type: 'boolean')]
     private ?bool $isBest = false;
@@ -75,7 +76,8 @@ class Recette
     #[ORM\ManyToOne(targetEntity: SpecialiteProvince::class, inversedBy: 'recettes')]
     private ?SpecialiteProvince $province;
 
-    #[ORM\OneToMany(mappedBy: 'recette', targetEntity: Favoris::class)]
+    #[ORM\ManyToMany(targetEntity: User::class)]
+    #[ORM\JoinTable('user_post_like')]
     private $favorite;
 
     #[ORM\OneToMany(mappedBy: 'recette', targetEntity: Commentaire::class, orphanRemoval: true)]
@@ -95,14 +97,28 @@ class Recette
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private $videos ="";
 
+    #[ORM\Column]
+    private ?\DateTimeImmutable $createdAt = null;
+
+
     public function __construct()
     {
         $this->ingredients = new ArrayCollection();
+        $this->createdAt = new \DateTimeImmutable();
 
         $this->favorite = new ArrayCollection();
         $this->commentaires = new ArrayCollection();
         $this->notes = new ArrayCollection();
 
+    }
+    /**
+     * Get the number of likes
+     *
+     * @return integer
+     */
+    public function howManyLikes(): int
+    {
+        return count($this->favorite);
     }
 
     public function getId(): ?int
@@ -322,24 +338,18 @@ class Recette
         return $this->favorite;
     }
 
-    public function addFavorite(Favoris $favorite): self
+    public function addFavorite(User $like): self
     {
-        if (!$this->favorite->contains($favorite)) {
-            $this->favorite[] = $favorite;
-            $favorite->setRecette($this);
+        if (!$this->favorite->contains($like)) {
+            $this->favorite->add($like);
         }
 
         return $this;
     }
 
-    public function removeFavorite(Favoris $favorite): self
+    public function removeFavorite(User $like): self
     {
-        if ($this->favorite->removeElement($favorite)) {
-            // set the owning side to null (unless already changed)
-            if ($favorite->getRecette() === $this) {
-                $favorite->setRecette(null);
-            }
-        }
+        $this->favorite->removeElement($like);
 
         return $this;
     }
@@ -352,30 +362,26 @@ class Recette
      */
     public function islikedByUser(User $user): bool
     {
-        foreach ($this->favorite as $like){
-            if ($like->getUser()=== $user ){
-                return true;
-            }
-            else{
-                return false;
-            }
-
-        }
-        return false;
+        return $this->favorite->contains($user);
 
     }
 
-    public function isIsPublic(): ?bool
+    /**
+     * @return string|null
+     */
+    public function getIsPublic(): ?string
     {
         return $this->isPublic;
     }
 
-    public function setIsPublic(bool $isPublic): self
+
+    public function setIsPublic(?string $isPublic): self
     {
         $this->isPublic = $isPublic;
-
         return $this;
     }
+
+
 
     /**
      * @return Collection<int, Commentaire>
@@ -480,6 +486,23 @@ class Recette
 
         return $this;
     }
+
+    /**
+     * @return \DateTimeImmutable|null
+     */
+    public function getCreatedAt(): ?\DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
+
+    /**
+     * @param \DateTimeImmutable|null $createdAt
+     */
+    public function setCreatedAt(?\DateTimeImmutable $createdAt): void
+    {
+        $this->createdAt = $createdAt;
+    }
+
 
 
 }

@@ -3,9 +3,11 @@
 namespace App\Repository;
 
 use App\Classe\Search;
+use App\Entity\Post\Posts;
 use App\Entity\Recette;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use Knp\Component\Pager\PaginatorInterface;
 
 /**
  * @extends ServiceEntityRepository<Recette>
@@ -17,10 +19,15 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class RecetteRepository extends ServiceEntityRepository
 {
-    public function __construct(ManagerRegistry $registry)
+    public function __construct(ManagerRegistry $registry, private PaginatorInterface $paginator)
     {
         parent::__construct($registry, Recette::class);
     }
+
+    /**
+     * @param int $page
+     *
+     */
 
     public function add(Recette $entity, bool $flush = false): void
     {
@@ -40,10 +47,29 @@ class RecetteRepository extends ServiceEntityRepository
         }
     }
 
+    /**
+     * @param int $page
+     *
+     */
+    public function findPublished(int $page)
+    {
+        $data =  $this->createQueryBuilder('r')
+            ->where('r.isPublic LIKE :isPublic')
+            ->setParameter('isPublic', '%STATE_PUBLISH%')
+            ->addOrderBy('r.createdAt', 'DESC')
+            ->getQuery()
+            ->getResult();
+        return $this->paginator->paginate($data,$page,12);
+
+    }
+
+
     public function findWithSearch(Search $search)
     {
         $query = $this
             ->createQueryBuilder('r')
+            ->where('r.isPublic LIKE :isPublic')
+            ->setParameter('isPublic', '%STATE_PUBLISH%')
             ->select('c','r')
             ->join('r.category', 'c');
 
@@ -58,6 +84,7 @@ class RecetteRepository extends ServiceEntityRepository
                 ->andWhere('r.name LIKE :string')
                 ->setParameter( 'string',"%{$search->string}%");
         }
+        $posts = $this->paginator->paginate($query, $search->page, 12);
 
         return $query->getQuery()->getResult();
     }

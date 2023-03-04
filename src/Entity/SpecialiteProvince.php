@@ -3,11 +3,15 @@
 namespace App\Entity;
 
 use App\Repository\SpecialiteProvinceRepository;
+use Cocur\Slugify\Slugify;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 #[ORM\Entity(repositoryClass: SpecialiteProvinceRepository::class)]
+#[ORM\HasLifecycleCallbacks]
+#[UniqueEntity('slug', message: 'ce slug existe déjà')]
 class SpecialiteProvince
 {
     #[ORM\Id]
@@ -17,6 +21,10 @@ class SpecialiteProvince
 
     #[ORM\Column(type: 'string', length: 255)]
     private $libelle;
+
+    #[ORM\Column(type: 'string',length: 255, unique: true)]
+    #[Assert\NotBlank()]
+    private ?string $slug = null;
 
     #[ORM\OneToMany(mappedBy: 'province', targetEntity: Recette::class)]
     private $recettes;
@@ -29,6 +37,11 @@ class SpecialiteProvince
         $this->recettes = new ArrayCollection();
         $this->territoires = new ArrayCollection();
     }
+    #[ORM\PrePersist]
+    public function prePersist(){
+        $this->slug = (new Slugify())->slugify($this->libelle);
+    }
+
     public function __toString()
     {
         return $this->libelle;
@@ -109,4 +122,21 @@ class SpecialiteProvince
 
         return $this;
     }
+
+    /**
+     * @return string|null
+     */
+    public function getSlug(): ?string
+    {
+        return $this->slug;
+    }
+
+    /**
+     * @param string|null $slug
+     */
+    public function setSlug(?string $slug): void
+    {
+        $this->slug = $slug;
+    }
+
 }

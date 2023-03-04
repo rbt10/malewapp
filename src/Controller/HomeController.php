@@ -7,6 +7,7 @@ use App\Entity\Etapes;
 use App\Entity\Recette;
 use App\Form\HomeType;
 use App\Form\SearchType;
+use App\Services\NavProvinces;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -17,13 +18,15 @@ use Symfony\Component\Routing\Annotation\Route;
 class HomeController extends AbstractController
 {
     private  $entityManager;
+     private $navProvinces;
 
     /**
      * @param $entityManager
      */
-    public function __construct(EntityManagerInterface $entityManager)
+    public function __construct(EntityManagerInterface $entityManager, NavProvinces $navProvinces)
     {
         $this->entityManager = $entityManager;
+        $this->navProvinces = $navProvinces;
     }
 
 
@@ -39,11 +42,17 @@ class HomeController extends AbstractController
 
         if($form->isSubmitted() && $form->isValid()) {
             $recettes = $this->entityManager->getRepository(Recette::class)->findByRecette($search);
+            return $this->render('recette/index.html.twig',[
+                'recettes'=>$recettes,
+                'form'=>$form->createView(),
+                'provinces' => $this->navProvinces->provinces()
+            ]);
         }
 
         return $this->render('home/index.html.twig',[
                 "recettes" => $recettes,
-                "form"=>$form->createView()
+                "form"=>$form->createView(),
+                'provinces' => $this->navProvinces->provinces()
         ]
        );
     }

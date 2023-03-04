@@ -21,11 +21,6 @@ class Commentaire
     #[ORM\Column(type: 'boolean')]
     private $active = false;
 
-    #[ORM\Column(type: 'string', length: 255)]
-    private $email;
-
-    #[ORM\Column(type: 'string', length: 255)]
-    private $pseudo;
 
     #[ORM\Column(type: 'datetime_immutable')]
     private $created_at;
@@ -40,9 +35,14 @@ class Commentaire
     #[ORM\OneToMany(mappedBy: 'parent', targetEntity: Commentaire::class)]
     private $reponse;
 
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'commentaires')]
+    private $auteur;
+
+
     public function __construct()
     {
         $this->reponse = new ArrayCollection();
+        $this->created_at = new \DateTimeImmutable();
     }
 
     public function getId(): ?int
@@ -74,29 +74,6 @@ class Commentaire
         return $this;
     }
 
-    public function getEmail(): ?string
-    {
-        return $this->email;
-    }
-
-    public function setEmail(string $email): self
-    {
-        $this->email = $email;
-
-        return $this;
-    }
-
-    public function getPseudo(): ?string
-    {
-        return $this->pseudo;
-    }
-
-    public function setPseudo(string $pseudo): self
-    {
-        $this->pseudo = $pseudo;
-
-        return $this;
-    }
 
     public function getCreatedAt(): ?\DateTimeImmutable
     {
@@ -160,6 +137,18 @@ class Commentaire
                 $reponse->setParent(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getAuteur(): ?User
+    {
+        return $this->auteur;
+    }
+
+    public function setAuteur(?User $auteur): self
+    {
+        $this->auteur = $auteur;
 
         return $this;
     }

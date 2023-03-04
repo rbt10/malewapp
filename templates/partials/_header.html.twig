@@ -18,23 +18,28 @@
 
                     {% endif %}
                     <li class="nav-item">
-                        <div class="dropdown">
-                            <a class=" nav-link dropdown-toggle" type="" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
-                                Les recettes
-                            </a>
-                            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-                                <li class="nav-item">
-                                    <a class="dropdown-item" href="{{ path('app_recette') }}">Nos recette</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="dropdown-item" href="#">Provinces</a>
-                                </li>
-
-                            </ul>
-                        </div>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ path('app_recette') }}">Nos recette</a>
+                    </li>
+                    <div class="dropdown">
+                        <a class=" nav-link dropdown-toggle" type="" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+                            Recette par Provinces
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+                            {% for province in provinces %}
+                                <div class="col-md-4">
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="{{ path("app_province_index", {slug: province.slug}) }}">{{ province.libelle }}</a>
+                                    </li>
+                                </div>
 
+                            {% endfor %}
+
+                        </ul>
+                    </div>
                 </ul>
+
                 <ul class="navbar-nav ms-auto mb-2">
                     {% if app.user %}
                         <div class="dropdown">

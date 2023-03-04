@@ -4,6 +4,7 @@ namespace App\Controller\Utilisateurs;
 
 use App\Entity\User;
 use App\Form\ChangePasswordType;
+use App\Services\NavProvinces;
 use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -14,6 +15,14 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class ProfilePasswordController extends AbstractController
 {
+    private NavProvinces $navProvinces;
+
+
+    public function __construct( NavProvinces $navProvinces)
+    {
+
+        $this->navProvinces = $navProvinces;
+    }
 
     #[Security("is_granted('ROLE_USER')")]
     #[Route('/profile/modifier-mon-mot-de-passe', name: 'app_profile_password')]
@@ -54,7 +63,8 @@ class ProfilePasswordController extends AbstractController
 
         return $this->render('profile/password.html.twig',[
             'form'=>$form->createView(),
-            'notification'=>$notification
+            'notification'=>$notification,
+            'provinces' => $this->navProvinces->provinces()
         ]);
     }
 }
