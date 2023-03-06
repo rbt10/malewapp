@@ -11,13 +11,13 @@
             <hr>
 
         </div>
-        <div class="col-md-9">
+        <div class="col-md-10">
 
             <h3>Nos Recettes</h3>
             <div class="row">
                 <!-- On affiche que les recette publique -->
                 {% for recette in recettes %}
-                    <div class="col-md-4 ">
+                    <div class="col-md-9">
                         {% include 'recette/single.html.twig' %}
                     </div>
                 {% endfor %}

@@ -67,9 +67,6 @@ class Recette
     #[ORM\Column(type: 'string', length: 255)]
     private ?string $slug;
 
-    #[ORM\Column(type: 'string')]
-    private ?string $isPublic = Recette::STATE[0];
-
     #[ORM\Column(type: 'boolean')]
     private ?bool $isBest = false;
 
@@ -95,10 +92,13 @@ class Recette
     private ?File $videoFile = null;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    private $videos ="";
+    private ?string $videos ="";
 
     #[ORM\Column]
     private ?\DateTimeImmutable $createdAt = null;
+
+    #[ORM\Column(type: 'boolean')]
+    private ?bool $isPublic = false;
 
 
     public function __construct()
@@ -367,23 +367,6 @@ class Recette
     }
 
     /**
-     * @return string|null
-     */
-    public function getIsPublic(): ?string
-    {
-        return $this->isPublic;
-    }
-
-
-    public function setIsPublic(?string $isPublic): self
-    {
-        $this->isPublic = $isPublic;
-        return $this;
-    }
-
-
-
-    /**
      * @return Collection<int, Commentaire>
      */
     public function getCommentaires(): Collection
@@ -501,6 +484,18 @@ class Recette
     public function setCreatedAt(?\DateTimeImmutable $createdAt): void
     {
         $this->createdAt = $createdAt;
+    }
+
+    public function isIsPublic(): ?bool
+    {
+        return $this->isPublic;
+    }
+
+    public function setIsPublic(bool $isPublic): self
+    {
+        $this->isPublic = $isPublic;
+
+        return $this;
     }
 
 

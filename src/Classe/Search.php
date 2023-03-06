@@ -13,13 +13,12 @@ class Search
      * @var string
      */
     public  $string ='';
-
+    public $page = 1;
 
     /**
      * @var $categories array
      */
     public $categories = [];
-
 
     /**
      * @return string|null

@@ -7,9 +7,9 @@
         <h1>Mes recettes</h1>
         <br><br>
         <hr>
-        <p> -<a href="{{ path("app_Ajouter_recette") }}">Ajouter ma recette</a></p>
+        <p> -<a href="{{ path("app_ajouter") }}">Ajouter ma recette</a></p>
         {% if is_granted('ROLE_ADMIN') %}
-            <p> -<a href="{{ path("app_Ajouter_video") }}">Ajouter une recette en video</a></p>
+            <p> -<a href="{{ path("app_video") }}">Ajouter une recette en video</a></p>
         {% endif %}
 
         {% for message in app.flashes('success') %}
@@ -19,9 +19,9 @@
                 {% for recette in recettes %}
                 <div class="col-md-4 d-inline-flex ">
                     <article class="recette_survole bg-white rounded shadow" style="width: 21rem">
-                        <a href="{{ path('recette',{'slug': recette.slug}) }}">
+                        <a href="{{ path('app_show',{'slug': recette.slug}) }}">
                             <img src="uploads/{{ (recette.image)}}" alt="{{recette.name  }}"  class="  card-img-top image_size w-100 rounded-top">
-                            <iframe class="embed-responsive-item" src="uploads/{{ (recette.videos) }}" allowfullscreen></iframe>
+                            <!--<iframe class="embed-responsive-item" src="uploads/{{ (recette.videos) }}" allowfullscreen></iframe>-->
                         </a>
 
                         <h2 class="h5 ps-3 py-2 text-capitalize">{{ recette.name }}</h2>

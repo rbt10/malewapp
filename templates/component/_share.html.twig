@@ -1,8 +1,8 @@
 <div class="d-flex justify-content-center my-2">
-    <a class="nav-link"  href="https://facebook.com/sharer/sharer.php?u={{ absolute_url(path('recette',{slug: recette.slug})) }}">
+    <a class="nav-link"  href="https://facebook.com/sharer/sharer.php?u={{ absolute_url(path('app_show',{slug: recette.slug})) }}">
         <i class="fa-brands fa-facebook fa-2xl"></i>
     </a>
-    <a class="nav-link" href="https://twitter.com/intent/tweet?text={{ recette.name|url_encode }}%20{{ absolute_url(path('recette',{slug: recette.slug})) }}%20@malewapp">
+    <a class="nav-link" href="https://twitter.com/intent/tweet?text={{ recette.name|url_encode }}%20{{ absolute_url(path('app_show',{slug: recette.slug})) }}%20@malewapp">
         <i class="fa-brands fa-twitter fa-2xl"></i>
     </a>
 

@@ -4,27 +4,20 @@ namespace App\Controller\Recette;
 
 use App\Classe\Search;
 use App\Entity\Commentaire;
-use App\Entity\Favoris;
 use App\Entity\Recette;
-use App\Form\AjoutRecetteType;
 use App\Form\CommentaireType;
+use App\Form\RecetteType;
 use App\Form\SearchType;
-use App\Form\VideoType;
 use App\Repository\CategorieRecetteRepository;
-use App\Repository\FavorisRepository;
 use App\Repository\RecetteRepository;
-use App\Repository\SpecialiteProvinceRepository;
 use App\Services\NavProvinces;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\File\Exception\FileException;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\String\Slugger\SluggerInterface;
 
@@ -32,10 +25,11 @@ class RecetteController extends AbstractController
 {
     private EntityManagerInterface $entityManager;
 
-    private $navProvinces;
+    private NavProvinces $navProvinces;
 
     /**
-     * @param $entityManager
+     * @param EntityManagerInterface $entityManager
+     * @param NavProvinces $navProvinces
      */
     public function __construct(EntityManagerInterface $entityManager, NavProvinces $navProvinces)
     {
@@ -43,10 +37,10 @@ class RecetteController extends AbstractController
         $this->navProvinces = $navProvinces;
     }
 
-
-
     /**
      * Affichage de la liste des recettes
+     * @param CategorieRecetteRepository $categorie
+     * @param PaginatorInterface $paginator
      * @param Request $request
      * @return Response
      */
@@ -57,7 +51,11 @@ class RecetteController extends AbstractController
         $search = new Search();
         $form = $this->createForm(SearchType::class, $search);
 
-        $recettes = $this->entityManager->getRepository(Recette::class)->findPublished( $request->query->getInt('page',1));;
+        $data = $this->entityManager->getRepository(Recette::class)->findAll();
+        $recettes = $paginator->paginate(
+            $data,
+            $request->query->getInt('page', 1),12);
+
 
 
         $form->handleRequest($request);
@@ -69,37 +67,29 @@ class RecetteController extends AbstractController
         return $this->render('recette/index.html.twig',[
             'recettes'=>$recettes,
             'form'=>$form->createView(),
-            'provinces' => $this->navProvinces->provinces()
+            'provinces' => $this->navProvinces->provinces(),
+
         ]);
     }
+   #[Route('recette/Ajout', name : 'app_ajouter', methods: ['GET', 'POST'])]
+    public function Ajout( Request $request, SluggerInterface $slugger) : Response{
 
-    /**
-     * Formulaire d'ajout d'une recette( seulles utilisateurs connecté peuvent le faire)
-     * @param Request $request
-     * @return Response
-     */
-    #[Route('recette/Ajouter-recette', name: 'app_Ajouter_recette', methods: ['GET', 'recette'])]
-    #[IsGranted('ROLE_USER')]
-    public function ajouter(Request $request, SluggerInterface $slugger): Response
-    {
-        $recette = new Recette();
+        $recette =  new Recette();
 
-        $form = $this->createForm(AjoutRecetteType::class,$recette);
-        $videoForm = $this->createForm(VideoType::class,$recette);
+        $formRecette = $this->createForm(RecetteType::class, $recette);
 
-        $form->handleRequest($request);
-        $videoForm->handleRequest($request);
-        // Est-ce que le formulaire a été soumis
+        //on traite la requete du formulaire
+        $formRecette->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid() OR $videoForm->isSubmitted() && $videoForm->isValid()){
+        //on vérifie si le formulaire est valide et soumis
+        if ($formRecette->isSubmitted() && $formRecette->isValid()){
 
-            $recette->setIsBest(false);
-            $recette->setUpdatedAt(new \DateTimeImmutable());
+            $slug = $slugger->slug($recette->getName());
+            $recette->setName($slug);
 
-            //liaison utilisateur avec la recette
-            $recette = $form->getData();
             $recette->setUser($this->getUser());
 
+            // stockage dans la bdd
             $this->entityManager->persist($recette);
             $this->entityManager->flush();
 
@@ -107,74 +97,23 @@ class RecetteController extends AbstractController
                 'success',
                 'Votre recette a été ajoutée avec succès'
             );
-
             //Rediriger vers mes recettes; affichage message succès
             return $this->redirectToRoute('app_mes_recettes');
-
-        }
-        else{
-            //Sinon
-                // on affiche notre formulaire
-
-            return $this->render('recette/ajouterRecette.html.twig',[
-                'form'=>$form->createView(),
-                'videoForm'=>$videoForm->createView(),
-                'provinces' => $this->navProvinces->provinces()
-            ]);
         }
 
-    }
+        return $this->render('recette/ajouterRecette.html.twig', [
+            'form'=>$formRecette->createView(),
+            'provinces' => $this->navProvinces->provinces()
+        ]);
 
-    #[Route('recette/Ajouter-Video', name: 'app_Ajouter_video', methods: ['GET', 'recette'])]
-    #[IsGranted('ROLE_ADMIN')]
-    public function ajouterVideo(Request $request, SluggerInterface $slugger): Response
-    {
-        $recette = new Recette();
-
-        $videoForm = $this->createForm(VideoType::class,$recette);
-
-        $videoForm->handleRequest($request);
-        // Est-ce que le formulaire a été soumis
-
-        if ($videoForm->isSubmitted() && $videoForm->isValid()){
-
-            $recette->setIsBest(false);
-            $recette->setUpdatedAt(new \DateTimeImmutable());
-
-            //liaison utilisateur avec la recette
-            $recette = $videoForm->getData();
-            $recette->setUser($this->getUser());
-
-            $this->entityManager->persist($recette);
-            $this->entityManager->flush();
-
-            $this->addFlash(
-                'success',
-                'Votre recette a été ajoutée avec succès'
-            );
-
-            //Rediriger vers mes recettes; affichage message succès
-            return $this->redirectToRoute('app_mes_recettes');
-
-        }
-        else{
-            //Sinon
-            // on affiche notre formulaire
-
-            return $this->render('recette/videoRecette.html.twig',[
-                'videoForm'=>$videoForm->createView(),
-                'provinces' => $this->navProvinces->provinces()
-            ]);
-        }
 
     }
 
     #[Security("is_granted('ROLE_USER') and user === recette.getUser()")]
-    #[Route('recette/Modifier-recette/{id}', name: 'app_modifier', methods: ['GET', 'recette'])]
-
+    #[Route('recette/Modifier-recette/{id}', name: 'app_modifier', methods: ['GET', 'POST'])]
     public function modifier(Request $request,SluggerInterface $slugger, RecetteRepository $repository, Recette $recette): Response{
 
-        $form = $this->createForm(AjoutRecetteType::class,$recette);
+        $form = $this->createForm(RecetteType::class,$recette);
 
         $form->handleRequest($request);
 
@@ -220,7 +159,6 @@ class RecetteController extends AbstractController
     #[Route('recette/suppression/{id}', name: 'app_supprimer', methods: ['GET'])]
     public function supprimer(Recette $recette): Response
     {
-
         $this->entityManager->remove($recette);
         $this->entityManager->flush();
 
@@ -248,16 +186,12 @@ class RecetteController extends AbstractController
     }
 
 
-    /**
-     * Permet d'afficher une recette
-     * @Route("/recette/{slug}", name="recette")
-     */
+    #[Route('/recette/{slug}',name: 'app_show', methods: ['GET'])]
     public function show($slug, Request $request): Response
     {
         $recette = $this->entityManager->getRepository(Recette::class)->findOneBySlug($slug);
-        $recettes =  $this->entityManager->getRepository(Recette::class)->findByIsBest(1);
         if (!$recette){
-            return $this->redirectToRoute('app_recette');
+            $this->redirectToRoute('app_recette');
         }
 
         // commentaire
@@ -287,7 +221,6 @@ class RecetteController extends AbstractController
 
         return $this->render('recette/show.html.twig',[
             'recette'=>$recette,
-            'recettes' => $recettes,
             'commentForm' => $commentForm->createView(),
             'provinces' => $this->navProvinces->provinces()
         ]);
@@ -296,7 +229,6 @@ class RecetteController extends AbstractController
 
     /**
      * @param Recette $recette
-     * @param FavorisRepository $favorisRepository
      * @return Response
      */
     #[Route('/recette/{id}/like', name: 'app_like')]

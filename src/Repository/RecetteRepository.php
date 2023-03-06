@@ -47,29 +47,12 @@ class RecetteRepository extends ServiceEntityRepository
         }
     }
 
-    /**
-     * @param int $page
-     *
-     */
-    public function findPublished(int $page)
-    {
-        $data =  $this->createQueryBuilder('r')
-            ->where('r.isPublic LIKE :isPublic')
-            ->setParameter('isPublic', '%STATE_PUBLISH%')
-            ->addOrderBy('r.createdAt', 'DESC')
-            ->getQuery()
-            ->getResult();
-        return $this->paginator->paginate($data,$page,12);
-
-    }
 
 
     public function findWithSearch(Search $search)
     {
         $query = $this
             ->createQueryBuilder('r')
-            ->where('r.isPublic LIKE :isPublic')
-            ->setParameter('isPublic', '%STATE_PUBLISH%')
             ->select('c','r')
             ->join('r.category', 'c');
 
@@ -84,37 +67,14 @@ class RecetteRepository extends ServiceEntityRepository
                 ->andWhere('r.name LIKE :string')
                 ->setParameter( 'string',"%{$search->string}%");
         }
-        $posts = $this->paginator->paginate($query, $search->page, 12);
 
-        return $query->getQuery()->getResult();
+        $query =  $query->getQuery()->getResult();
+        $data =$this->paginator->paginate($query, $search->page, 12);
+
+        return $data;
+
     }
 
-
-    /**
-     * @return Recette[] Returns an array of Recette objects
-    */
-   public function findByRecette(Search $search): array
-    {
-        $query = $this
-            ->createQueryBuilder('r')
-            ->select('c','r')
-            ->join('r.category', 'c');
-
-        if(!empty($search->categories)){
-            $query = $query
-                ->andWhere('c.id IN (:categories)')
-                ->setParameter( 'categories', $search->categories);
-        }
-
-        if(!empty($search->string)){
-            $query = $query
-                ->andWhere('r.name LIKE :string')
-                ->setParameter( 'string',"%{$search->string}%");
-        }
-
-         return $query->getQuery()->getResult();
-
-   }
 
 //    public function findOneBySomeField($value): ?Recette
 //    {

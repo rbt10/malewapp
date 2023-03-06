@@ -8,7 +8,6 @@
         <div class="col-md-12">
             {{ form(form) }}
         </div>
-
     </div>
 
     <div class="row recette">
@@ -16,7 +15,7 @@
         <p class="lead">Découvrez les repas de la RDC</p>
         {% for recette in recettes %}
             {% if recette.isBest %}
-                <div class="col-md-3 ">
+                <div class="col-md-3 justify-content-center me-2 ">
                     {% include 'recette/single.html.twig' %}
                 </div>
             {% endif %}
