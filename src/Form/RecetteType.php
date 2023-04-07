@@ -26,7 +26,7 @@ class RecetteType extends AbstractType
                 'label' => 'Nom de la recette'
             ])
             ->add('duree', TimeType::class,[
-                'label'=>"Temps de préparation"
+                'label'=>"Temps de préparation (H : M )"
             ])
             ->add('difficulte',EntityType::class, [
                 'class' => Difficulte::class,
@@ -48,8 +48,9 @@ class RecetteType extends AbstractType
                 'required' =>true
             ])
 
+
             ->add('imageFile', VichFileType::class, [
-                'label' => 'Image(JPG ou PNG)',
+                'label' => 'ajouter plusieurs images(JPG ou PNG) ',
                 'required' => false,
                 'allow_delete' => false,
                 'download_uri' => true,
@@ -57,12 +58,12 @@ class RecetteType extends AbstractType
                 'asset_helper' => false,
                 'constraints' => [
                     new File([
-                        'maxSize' => '1M',
+                        'maxSize' => '1280M',
                         'mimeTypes' => [
                             'image/jpeg',
                             'image/png',
                         ],
-                        'mimeTypesMessage' => 'Merci de télécharger une image valide',
+                        'mimeTypesMessage' => 'Merci de télécharger un fichier valide',
                     ])
                 ],
             ])

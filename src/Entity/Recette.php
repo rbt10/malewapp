@@ -88,7 +88,7 @@ class Recette
     #[ORM\Column(type: 'datetime_immutable', options: ['default' =>'CURRENT_TIMESTAMP'])]
     private ?\DateTimeImmutable $updatedAt;
 
-    #[Vich\UploadableField(mapping: 'recette_videos', fileNameProperty: 'videos')]
+    #[Vich\UploadableField(mapping: 'recette_images', fileNameProperty: 'videos')]
     private ?File $videoFile = null;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
@@ -101,6 +101,10 @@ class Recette
     private ?bool $isPublic = false;
 
 
+    #[ORM\OneToMany(mappedBy: 'recette', targetEntity: ThumbnailImage::class, cascade: ['persist'], orphanRemoval: true)]
+    private  $thumbnailImages;
+
+
     public function __construct()
     {
         $this->ingredients = new ArrayCollection();
@@ -109,6 +113,7 @@ class Recette
         $this->favorite = new ArrayCollection();
         $this->commentaires = new ArrayCollection();
         $this->notes = new ArrayCollection();
+        $this->thumbnailImages = new ArrayCollection();
 
     }
     /**
@@ -494,6 +499,36 @@ class Recette
     public function setIsPublic(bool $isPublic): self
     {
         $this->isPublic = $isPublic;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, ThumbnailImage>
+     */
+    public function getThumbnailImages(): Collection
+    {
+        return $this->thumbnailImages;
+    }
+
+    public function addThumbnailImage(ThumbnailImage $thumbnailImage): self
+    {
+        if (!$this->thumbnailImages->contains($thumbnailImage)) {
+            $this->thumbnailImages[] = $thumbnailImage;
+            $thumbnailImage->setRecette($this);
+        }
+
+        return $this;
+    }
+
+    public function removeThumbnailImage(ThumbnailImage $thumbnailImage): self
+    {
+        if ($this->thumbnailImages->removeElement($thumbnailImage)) {
+            // set the owning side to null (unless already changed)
+            if ($thumbnailImage->getRecette() === $this) {
+                $thumbnailImage->setRecette(null);
+            }
+        }
 
         return $this;
     }

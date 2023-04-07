@@ -1,10 +1,18 @@
-<div class="card m-3" style="width: 16rem; height: 20rem;">
-    <a href="{{ path('app_show',{'slug': recette.slug}) }}">
-        <img src="/uploads/{{ recette.image }}" alt="{{recette.name  }}"  class="img-fluid image_size">
+<div class="card my-1" style="width: 16rem;">
+    <a href="{{ path('app_show',{'slug': recette.slug}) }}" class="nav-link">
+        {% if recette.image %}
+            <img src="uploads/{{ (recette.image)}}" alt="{{recette.name  }}" class="card-img-top  w-100 rounded-top">
+        {% endif %}
+        {% if recette.videos %}
+            <video src="uploads/{{ (recette.videos)}}" type="video/mp4" class="w-auto" controls allowfullscreen>
+
+            </video>
+        {% endif %}
+        <div class="card-body ">
+            <h5 class="card-title text-capitalize fw-bold  text-center" >{{ recette.name }}</h5>
+            <p class="card-text fw-lighter">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+        </div>
     </a>
-    <div class="card-body">
-        <h5 class="card-title text-center text-capitalize" >{{ recette.name }}</h5>
-    </div>
 </div>
 
 

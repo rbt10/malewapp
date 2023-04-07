@@ -85,4 +85,20 @@ class RecetteRepository extends ServiceEntityRepository
 //            ->getOneOrNullResult()
 //        ;
 //    }
+    public function calculerMoyenneNotes(Recette $recette): float|int|null
+    {
+        $notes = $recette->getNotes();
+        $count = count($notes);
+
+        if ($count === 0) {
+            return null;
+        }
+
+        $sum = 0;
+        foreach ($notes as $note) {
+            $sum += $note->getNote();
+        }
+
+        return $sum / $count;
+    }
 }

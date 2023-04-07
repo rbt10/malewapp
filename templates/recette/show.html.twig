@@ -5,25 +5,43 @@
 {% block content %}
 
     <h1 class="display-6 text-center">{{ recette.name }}</h1>
-    <div class="row mb-5">
-        <div class="col text-center">
+    <div class="row my-5">
+        <div class="col-md-6">
             {% include "component/_share.html.twig" %}
-            <img src="/uploads/{{ recette.image }}" alt="{{recette.name }}" class="img-fluid rounded-2 w-50 ">
+            {% if recette.image %}
+                <img src="/uploads/{{ recette.image }}" alt="{{recette.name }}" class="img-fluid rounded-2">
+            {% endif %}
+            {% if recette.videos %}
+                <video src="{{ asset('uploads/'~recette.videos) }}" type="video/mp4" width="853" height="480" allowfullscreen controls>
+
+                </video>
+                <div class="row">
+                    {% for thumbnail in recette.thumbnailImages %}
+                        <div class="col-md-4 d-flex justify-content-center">
+                            <img src="{{ asset('uploads/images/mini/300x300-'~thumbnail.nom) }}"
+                                 alt="{{ thumbnail.nom }}" class="img-thumbnail" />
+                        </div>
+                    {% endfor %}
+                </div>
+
+            {% endif %}
+
             <div class=" text-center">
                 <a href="{{ path('app_like' , {'id' : recette.id}) }}"  class="js-like text-danger nav-link">
                     {% if(app.user and recette.islikedByUser(app.user))   %}
                         <i class="fas fa-heart"></i>
-                        <span>  {{ recette.favorite |length }} J'aime</span>
                     {% else %}
                         <i class="far fa-heart"></i>
-                        <span> {{ recette.favorite |length }} J'aime</span>
-                    {% endif %}</a>
+                    {% endif %}
+                    <span class="js-likes"> {{ recette.favorite |length }}</span>
+                    <span class= "js-likes">  J'aime</span>
+                </a>
 
             </div>
         </div>
     </div>
     <div class="row">
-        <div class="col my-auto ">
+        <div class="col-md-6 ">
             <h3 class="display-6">Préparation</h3>
             <p>Les ingrédients :
                 {% for ingredient in recette.ingredients %}
@@ -37,21 +55,33 @@
         </div>
     </div>
     <!-------------------------- Les commentaires  ----------------------------->
-    <section class="row">
-        <div class="col-md-12">
-            <h3 class="display-6">Commentaire</h3>
-            <div class="">
-                {% if app.user %}
-                    {{ form(commentForm) }}
-                {% endif %}
-
+    <div class="row">
+        <div class="col-md-8">
+            <h4>Commentaires</h4>
+            <div>
+                <i class="fa-solid fa-star " data-index="0" ></i>
+                <i class="fa  fa-star" data-index="1"></i>
+                <i class="fa fa-star" data-index="2"></i>
+                <i class="fa  fa-star" data-index="3"></i>
+                <i class="fa fa-star" data-index="4"></i>
             </div>
             {% for commentaire in recette.commentaires %}
                 <p>Publié par {{ commentaire.auteur }} le {{ commentaire.createdAt| date("d/m/Y H:i") }}</p>
                 <div>{{ commentaire.contenu }}</div>
                 <p><a href="" data-reply data-id="{{ commentaire.id}} "></a></p>
             {% endfor %}
+        </div>
+    </div>
+    <section class="row">
+        <div class="col-md-8">
+            <div class="">
+                {% if app.user %}
+                    {{ form(commentForm) }}
+                {% else %}
+                    Vous devez vous connecter afin de laisser un commentaire <a href="{{ path('app_login') }}">se connecter</a>
+                {% endif %}
 
+            </div>
         </div>
     </section>
 
@@ -65,15 +95,20 @@
 
             const url = this.href;
             const icon = this.querySelector('i')
-            const spanCount = this.querySelectorAll('span.js-like')
+            const spanCount = this.querySelector('span.js-likes')
 
             axios.get(url).then(function (response){
-                spanCount.textContent = response.data.favorite
+                spanCount.textContent = response.data.likes
+
                 if(icon.classList.contains('fas')){
                     icon.classList.replace('fas','far')
                 }
                 else {
                     icon.classList.replace('far', 'fas')
+                }
+            }).catch(function (error){
+                if(error.response.status===404){
+                    window.alert("vous devez vous connecter pour aimer cette recette")
                 }
             })
         }

@@ -1,33 +1,35 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}{{ recette.name }}{% endblock %}
+{% block title %}Mes recettes - Malewapp{% endblock %}
 
 {% block content %}
-    <h1>{{ recette.name }}</h1>
     <div class="row mb-5">
-        <div class="col-md-5">
-            <img src="/uploads/{{ recette.image }}" alt="{{recette.name }}" class="img-fluid recette-image">
-        </div>
-        <div class="col-md-7 my-auto ">
-            <h3>{{ recette.name }}</h3>
-            <hr>
-            <p>{{ recette.description }}</p>
-            <hr>
-        </div>    </div>
+    <h1>Mes recettes</h1>
+    <br><br>
     <hr>
+    <p> -<a href="{{ path("app_ajouter") }}">Ajouter ma recette</a></p>
+    {% if is_granted('ROLE_ADMIN') %}
+        <p> -<a href="{{ path("app_video") }}">Ajouter une recette en video</a></p>
+    {% endif %}
+
+    {% for message in app.flashes('success') %}
+        <div class="alert alert-success mt-4">{{ message }}</div>
+    {% endfor %}
     <div class="row">
-        <div class="col-md-12">
-            <h3>Nos Recettes</h3>
-            <div class="row recette-container">
-                {% for recette in recettes %}
-                    <div class="col-md-3 ">
-                        {% include 'recette/single.html.twig' %}
+        {% for recette in recettes %}
+            <div class="col-md-4 d-inline-flex ">
+                <article class="recette_survole bg-white rounded shadow" style="width: 21rem">
+                    <a href="{{ path('app_show',{'slug': recette.slug}) }}">
+                        <iframe class="embed-responsive-item" src="public/videos/{{ (recette.videos) }}" allowfullscreen></iframe>
+                    </a>
+
+                    <h2 class="h5 ps-3 py-2 text-capitalize">{{ recette.name }}</h2>
+                    <div class="ps-3 pb-3">
+                        <a href="{{ path("app_modifier", {id: recette.id}) }}"  class="d-inline-block text-secondary text-decoration-none btn btn-light">Modifier</a>
+                        <a href="{{ path("app_supprimer", {id: recette.id}) }}" onclick="return confirm('Attention, suppression d\'une recette')" class="text-secondary text-decoration-none btn btn-light">Supprimer</a>
                     </div>
-                {% endfor %}
+                </article>
             </div>
-        </div>
+        {% endfor %}
     </div>
-
 {% endblock %}
-
-

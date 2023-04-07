@@ -42,8 +42,6 @@ class RecetteCrudController extends AbstractCrudController
             BooleanField::new('is_public'),
             AssociationField::new('user'),
             AssociationField::new('province')
-
         ];
     }
-
 }

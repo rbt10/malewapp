@@ -5,13 +5,17 @@ namespace App\Controller\Recette;
 use App\Classe\Search;
 use App\Entity\Commentaire;
 use App\Entity\Recette;
+use App\Entity\ThumbnailImage;
 use App\Form\CommentaireType;
 use App\Form\RecetteType;
 use App\Form\SearchType;
+use App\Form\VideoType;
 use App\Repository\CategorieRecetteRepository;
 use App\Repository\RecetteRepository;
 use App\Services\NavProvinces;
+use App\Services\Pictures;
 use Doctrine\ORM\EntityManagerInterface;
+use Exception;
 use Knp\Component\Pager\PaginatorInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
@@ -71,6 +75,12 @@ class RecetteController extends AbstractController
 
         ]);
     }
+    /**
+     * Ajouter une recette avec une image
+     *
+    */
+
+   #[Security("is_granted('ROLE_USER')")]
    #[Route('recette/Ajout', name : 'app_ajouter', methods: ['GET', 'POST'])]
     public function Ajout( Request $request, SluggerInterface $slugger) : Response{
 
@@ -106,7 +116,64 @@ class RecetteController extends AbstractController
             'provinces' => $this->navProvinces->provinces()
         ]);
 
+    }
 
+    /**
+     * Ajouter une recette avec une vidéo (réservé aux admins)
+     * @throws Exception
+     */
+
+    #[Security("is_granted('ROLE_ADMIN')")]
+    #[Route('recette/AjoutVideo', name : 'app_video', methods: ['GET', 'POST'])]
+    public function AjoutVideo( Request $request,
+                                SluggerInterface $slugger,
+                                Pictures $pictures) : Response{
+
+        $recette =  new Recette();
+
+        $form = $this->createForm(VideoType::class, $recette);
+
+        //on traite la requete du formulaire
+        $form->handleRequest($request);
+
+        //on vérifie si le formulaire est valide et soumis
+        if ($form->isSubmitted() && $form->isValid()){
+
+            // on recupère les images
+            $images = $form->get('thumbnailImages')->getData();
+            foreach($images as $image){
+                // On définit le dossier de destination
+                $folder = '';
+
+                // On appelle le service d'ajout
+                $fichier = $pictures->add($image, $folder, 300, 300);
+
+                $img = new ThumbnailImage();
+                $img->setNom($fichier);
+                $recette->addThumbnailImage($img);
+            }
+            //  on génère le slug
+            $slug = $slugger->slug($recette->getName());
+            $recette->setName($slug);
+            $recette->setUser($this->getUser());
+
+            // stockage dans la bdd
+            $this->entityManager->persist($recette);
+            $this->entityManager->flush();
+
+            $this->addFlash(
+                'success',
+                'Votre recette a été ajoutée avec succès'
+            );
+            //Rediriger vers mes recettes; affichage message succès
+            return $this->redirectToRoute('app_mes_recettes');
+        }
+
+        return $this->render('recette/videoRecette.html.twig', [
+            'form'=>$form->createView(),
+            'recettes'=>$recette,
+            'provinces' => $this->navProvinces->provinces()
+        ]);
     }
 
     #[Security("is_granted('ROLE_USER') and user === recette.getUser()")]
@@ -118,7 +185,6 @@ class RecetteController extends AbstractController
         $form->handleRequest($request);
 
         // Est-ce que le formulaire a été soumis
-
         if ($form->isSubmitted() && $form->isValid()){
 
             $recette = $form->getData();
@@ -186,7 +252,7 @@ class RecetteController extends AbstractController
     }
 
 
-    #[Route('/recette/{slug}',name: 'app_show', methods: ['GET'])]
+    #[Route('/recette/{slug}',name: 'app_show', methods: ['GET', 'POST'])]
     public function show($slug, Request $request): Response
     {
         $recette = $this->entityManager->getRepository(Recette::class)->findOneBySlug($slug);
@@ -208,6 +274,7 @@ class RecetteController extends AbstractController
         // On traite le formulaire
 
         if ($commentForm->isSubmitted() && $commentForm->isValid()){
+
             $commentaire->setCreatedAt(new \DateTimeImmutable());
             $commentaire->setRecette($recette);
 
@@ -216,7 +283,7 @@ class RecetteController extends AbstractController
 
             $this->addFlash('success', 'votre commentaire a bien été envoyé');
 
-            return $this->redirectToRoute('recette', ['slug'=> $recette->getSlug()]);
+            return $this->redirectToRoute('app_show', ['slug'=> $recette->getSlug()]);
         }
 
         return $this->render('recette/show.html.twig',[
@@ -247,11 +314,10 @@ class RecetteController extends AbstractController
             ]);
 
         }
-
         $recette->addFavorite($user);
         $this->entityManager->flush();
         return $this->json([ 'message'=>'like ajouté' ,'likes' => $recette->howManyLikes()]);
 
-    
+
     }
 }
