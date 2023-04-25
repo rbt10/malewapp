@@ -3,14 +3,21 @@
 {% block title %}Mon compte _ Malewapp{% endblock %}
 
 {% block content %}
-    <h1>Mon compte</h1>
-    <p>Bienvenue {{ app.user.firstname }} dans votre espace </p>
-    <hr>
+    <div class="container">
+        <div class="row">
+            <div class="col-12 col-md-6">
+                <h1 class="fw-bold">Mon compte</h1>
+                <p class="fw-light">Bienvenue {{ app.user.firstname }} dans votre espace </p>
 
-    {% for message in app.flashes('success') %}
-        <div class="alert alert-success mt-4">{{ message }}</div>
-    {% endfor %}
 
-    - <a href="{{ path('app_mes_recettes') }}">Mes recettes</a>
+                {% for message in app.flashes('success') %}
+                    <div class="alert alert-success mt-4">{{ message }}</div>
+                {% endfor %}
+
+                - <a href="{{ path('app_mes_recettes') }}" class="fw-light">Mes recettes</a>
+            </div>
+        </div>
+    </div>
+
 
 {% endblock %}

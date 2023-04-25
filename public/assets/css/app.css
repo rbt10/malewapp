@@ -48,7 +48,10 @@ page show, affichage d'images
     line-height: 1;
     letter-spacing: -.05rem;
 }
-
+.card-image {
+    object-fit: cover; /* redimensionner l'image pour remplir la hauteur de la carte */
+    height: 100%; /* définir la hauteur de l'image sur 100% pour remplir la carte */
+}
 
 
 

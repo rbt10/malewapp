@@ -51,7 +51,7 @@ class VideoType extends AbstractType
                 'required' =>true
             ])
             ->add('thumbnailImages', FileType::class, [
-                'label' => false,
+                'label' => 'Insérer une ou plusieurs images',
                 'multiple' => true,
                 'mapped' => false,
                 'required' => false,

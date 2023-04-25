@@ -3,40 +3,50 @@
 {% block title %}Mes recettes - Malewapp{% endblock %}
 
 {% block content %}
-    <div class="row mb-5">
-        <h1>Mes recettes</h1>
-        <br><br>
-        <hr>
-        <p> <a href="{{ path("app_ajouter") }}">Ajouter ma recette</a></p>
-        {% if is_granted('ROLE_ADMIN') %}
-            <p> <a href="{{ path("app_video") }}">Ajouter une recette en video</a></p>
-        {% endif %}
+    <div class="container py-5">
+        <div class="row">
+            <div class="col-12 col-md-6">
+                <h1 class="fw-bold">Mes recettes</h1>
 
-        {% for message in app.flashes('success') %}
-            <div class="alert alert-success mt-4">{{ message }}</div>
-        {% endfor %}
-            <div class="row">
-        {% for recette in recettes %}
-            <div class="col-md-4 d-inline-flex mb-2 ">
-                <article class="recette_survole bg-white rounded shadow" style="width: 21rem">
-                    <a href="{{ path('app_show',{'slug': recette.slug}) }}">
+                <p> <a href="{{ path("app_ajouter") }}">Ajouter ma recette</a></p>
+                {% if is_granted('ROLE_ADMIN') %}
+                    <p> <a href="{{ path("app_video") }}">Ajouter une recette en video</a></p>
+                {% endif %}
+
+                {% for message in app.flashes('success') %}
+                    <div class="alert alert-success mt-4">{{ message }}</div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="row">
+            {% for recette in recettes %}
+                <div class="col-12 col-md-4">
+                    <div class="card mb-2" style="width: 18rem;">
                         {% if recette.image %}
-                            <img src="uploads/{{ (recette.image)}}" alt="{{recette.name  }}" class="card-img-top image_size w-100 rounded-top">
+                            <img src="uploads/{{ (recette.image)}}" alt="{{recette.name  }}" class="card-img-top rounded-top">
                         {% endif %}
                         {% if recette.videos %}
-                            <video controls width="320" height="240">
-                                <source src="uploads/{{ (recette.videos)}}" type="video/mp4">
-                            </video>
+                            <video src="uploads/{{ (recette.videos)}}" class="card-img-top"  controls allowfullscreen></video>
                         {% endif %}
-                        <h2 class="h5 ps-3 py-2 text-capitalize">{{ recette.name }}</h2>
-                    </a>
 
-                    <div class="ps-3 pb-3">
-                        <a href="{{ path("app_modifier", {id: recette.id}) }}"  class="d-inline-block text-secondary text-decoration-none btn btn-light">Modifier</a>
-                        <a href="{{ path("app_supprimer", {id: recette.id}) }}" onclick="return confirm('Attention, suppression d\'une recette')" class="text-secondary text-decoration-none btn btn-light">Supprimer</a>
+                        <div class="card-body">
+                            <a href="{{ path('app_show',{'slug': recette.slug}) }}" class="nav-link"><h5 class="card-title">{{ recette.name }}</h5></a>
+
+                            <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+                            <div class="ps-3 pb-3">
+                                <a href="{{ path("app_modifier", {id: recette.id}) }}"  class="d-inline-block text-secondary text-decoration-none btn btn-light">Modifier</a>
+                                <a href="{{ path("app_supprimer", {id: recette.id}) }}" onclick="return confirm('Attention, suppression d\'une recette')" class="text-secondary text-decoration-none btn btn-light">Supprimer</a>
+                            </div>
+                        </div>
                     </div>
-                </article>
+                </div>
+
+
+
+
+
+                {% endfor %}
             </div>
-        {% endfor %}
     </div>
 {% endblock %}

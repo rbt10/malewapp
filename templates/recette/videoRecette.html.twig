@@ -6,13 +6,18 @@
 
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 
-    <h1>Ajouter une recette video</h1>
+    <div class="container">
+        <div class="row">
+            <h1 class="fw-bold">Ajouter une recette video</h1>
 
-    <div class="col-md-8 me-auto">
-        {% if is_granted('ROLE_ADMIN') %}
-            {{ form(form) }}
-        {% endif %}
+            <div class="col-12 col-md-8 my-5 mx-auto fw-normal">
+                {% if is_granted('ROLE_ADMIN') %}
+                    {{ form(form) }}
+                {% endif %}
+            </div>
+        </div>
     </div>
+
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
